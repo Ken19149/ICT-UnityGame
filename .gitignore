@@ -1,5 +1,9 @@
 # This .gitignore file should be placed at the root of your Unity project directory
-#
+
+# ignore the build file
+ict-unity-game-web-build.zip
+build-web/
+
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 .utmp/

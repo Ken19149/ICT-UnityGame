@@ -1,0 +1,8 @@
+Chavangkon Kanjanakuldit (Ken) 6681371
+https://play.unity.com/en/games/241cfd8c-7f3f-491b-8171-09499bd4f79e/build-web
+https://github.com/Ken19149/ICT-UnityGame
+
+The concept behind this is I want it to be different from the normal combat mechanic fighting with monsters, I was thinking about desserts so I made a game with the theme of collecting ingredients to open a shop instead.
+Most of things went smoothly, but I also encountered a few problems. Instead of dissolving with shader, I used alpha value to make the object gradually fade when I touch them. I also made it scale up as well. Moreover, I used a script to make objects rotate as well as move up and down to make to look animated for the animation.
+The problem I faced was that the game worked fine when I tested it, but when I played on the openGL build, it's not working. I couldn't see the object I placed. However, when I went to the location of the object, the point went up. That means it's simply not rendering. Luckily, there was one object which is completely fine and I'm not quite sure why. I'm thinking it has something to do with the render pipeline. As a result, I solely used that one models instead of the 7 models I prepared.
+With that being said, the game works!!!
