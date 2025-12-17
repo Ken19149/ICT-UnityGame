@@ -4,7 +4,7 @@ using TMPro;
 public class KillCounterUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI killText;
-    [SerializeField] private string format = "Kills: {0}/{1}";
+    [SerializeField] private string format = "Ingredient Collected: {0}/{1}";
     void Start()
     {
         killText = GetComponent<TextMeshProUGUI>();

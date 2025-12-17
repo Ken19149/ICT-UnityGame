@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Collider))]
 public class Enemy : MonoBehaviour
@@ -15,39 +16,59 @@ public class Enemy : MonoBehaviour
     [SerializeField] private string dieStateName = "Die";
     [SerializeField] private int animatorLayerIndex = 0;
 
-    [Header("Dissolve Shader Settings")]
-    [SerializeField] private SkinnedMeshRenderer skinnedMesh;      // Assign in Inspector
-    [SerializeField] private float dissolveDuration = 1.5f;
-    [SerializeField] private string dissolvePropertyName = "_DissolveAmount";
+    [Header("Fading & Scaling Settings")]
+    [SerializeField] private float fadeDuration = 1.5f;
+    [SerializeField] private float scaleMultiplier = 1.5f; 
+    
+    // Remember to use "_BaseColor" for URP or "_Color" for Standard
+    [SerializeField] private string colorPropertyName = "_BaseColor"; 
 
     private bool isDead = false;
-    private bool isDissolving = false;
-    private float dissolveT = 0f;
+    private bool isFading = false;
+    private float fadeT = 0f;
     private bool destroyScheduled = false;
 
-    private Material dissolveMaterial;
+    private Vector3 initialScale;
+
+    // A small helper class to remember the material and its original color
+    private class FadePart
+    {
+        public Material material;
+        public Color initialColor;
+    }
+    private List<FadePart> fadeParts = new List<FadePart>();
 
     private void Reset()
     {
-        // Helper when you add the script
         var col = GetComponent<Collider>();
         col.isTrigger = true;
-
         animator = GetComponent<Animator>();
     }
 
     private void Start()
     {
-        if (skinnedMesh != null)
+        initialScale = transform.localScale;
+
+        // 1. Find ALL renderers (MeshRenderer and SkinnedMeshRenderer) in this object and its children
+        Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer r in allRenderers)
         {
-            // Get an instance so we don't modify the shared material
-            dissolveMaterial = skinnedMesh.material;
-            // Start fully visible
-            dissolveMaterial.SetFloat(dissolvePropertyName, 0f);
-        }
-        else
-        {
-            Debug.LogWarning($"[Enemy] SkinnedMeshRenderer not assigned on {name}. Dissolve won't work.");
+            // A single renderer might have multiple materials (e.g. skin + cloth)
+            foreach (Material mat in r.materials) 
+            {
+                if (mat.HasProperty(colorPropertyName))
+                {
+                    FadePart part = new FadePart();
+                    part.material = mat;
+                    part.initialColor = mat.GetColor(colorPropertyName);
+                    fadeParts.Add(part);
+                }
+                else
+                {
+                    Debug.LogWarning($"[EnemyFader] Material '{mat.name}' is missing property '{colorPropertyName}'");
+                }
+            }
         }
     }
 
@@ -55,7 +76,6 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
         if (!other.CompareTag(playerTag)) return;
-
         HandleDeath();
     }
 
@@ -63,52 +83,49 @@ public class Enemy : MonoBehaviour
     {
         isDead = true;
 
-        // Notify GameManager
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RegisterKill();
-        }
-        else
-        {
-            Debug.LogWarning("[Enemy] GameManager.Instance is null. Make sure a GameManager exists in the scene.");
-        }
+        if (GameManager.Instance != null) GameManager.Instance.RegisterKill();
 
-        // Trigger Die animation
         if (animator != null && !string.IsNullOrEmpty(dieTriggerName))
         {
             animator.SetTrigger(dieTriggerName);
         }
         else
         {
-            // If no animator, start dissolve immediately
-            StartDissolve();
+            StartFading();
         }
     }
 
     private void Update()
     {
-        // 1) Wait until Die animation is finished, then start dissolve
-        if (isDead && !isDissolving && animator != null)
+        // 1) Wait for animation
+        if (isDead && !isFading && animator != null)
         {
             AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(animatorLayerIndex);
-
-            // Check if we're in the Die state and the clip has finished (normalizedTime >= 1)
             if (state.IsName(dieStateName) && state.normalizedTime >= 1f)
             {
-                StartDissolve();
+                StartFading();
             }
         }
 
-        // 2) If dissolving, update shader property over time
-        if (isDissolving && dissolveMaterial != null)
+        // 2) Handle Fading
+        if (isFading)
         {
-            dissolveT += Time.deltaTime / dissolveDuration;
-            float value = Mathf.Clamp01(dissolveT);
+            fadeT += Time.deltaTime / fadeDuration;
+            float normalizedTime = Mathf.Clamp01(fadeT); 
 
-            // Same behavior as your original: _DissolveAmount goes from 0 to -1
-            dissolveMaterial.SetFloat(dissolvePropertyName, -value);
+            // A: Scale Up
+            transform.localScale = Vector3.Lerp(initialScale, initialScale * scaleMultiplier, normalizedTime);
 
-            if (value >= 1f && !destroyScheduled)
+            // B: Update ALL materials we found
+            foreach (FadePart part in fadeParts)
+            {
+                float newAlpha = Mathf.Lerp(part.initialColor.a, 0f, normalizedTime);
+                Color fadedColor = new Color(part.initialColor.r, part.initialColor.g, part.initialColor.b, newAlpha);
+                part.material.SetColor(colorPropertyName, fadedColor);
+            }
+
+            // C: Destroy
+            if (normalizedTime >= 1f && !destroyScheduled)
             {
                 destroyScheduled = true;
                 Destroy(gameObject, destroyDelayAfterDissolve);
@@ -116,11 +133,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void StartDissolve()
+    private void StartFading()
     {
-        if (isDissolving) return;
-
-        isDissolving = true;
-        dissolveT = 0f;
+        if (isFading) return;
+        isFading = true;
+        fadeT = 0f;
     }
 }
