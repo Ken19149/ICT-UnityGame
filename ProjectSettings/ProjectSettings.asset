@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: 611b674412bc403f69e06a01ef8e56ae
+  productGUID: be0a3f8d779cc304aa68b6537a2618e8
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: ICT-UnityGame
+  productName: HW1_CT321_Template
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -844,14 +844,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: ICT-UnityGame
+  metroPackageName: HW1_CT321_Template
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: ICT-UnityGame
+  metroApplicationDescription: HW1_CT321_Template
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -922,11 +922,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: ca07214e-bb37-458f-84eb-83f11c30fd98
+  cloudProjectId: 9242cc3d-aa08-47d1-8f47-b1e912b9a293
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: ICT-UnityGame
-  organizationId: ken980
+  projectName: HW1_CT321_Template
+  organizationId: kukpsspring2042
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
